@@ -1,0 +1,14 @@
+{
+  "formatVersion": "1",
+  "header": {
+    "description": "get mrp",
+    "originalLanguage": "en",
+    "abapLanguageVersion": "cloudDevelopment"
+  },
+  "scalarFunctionName": "ZGET_MRP",
+  "engine": "sqlEngine",
+  "sqlProperties": {
+    "amdpReference": "zcl_dxc_ab_amdp=>anubhav",
+    "autoExposedInSqlServices": false
+  }
+}

@@ -1,0 +1,10 @@
+@EndUserText.label: 'order status'
+define type zdxc_ab_status: abap.char( 2 ) enum {
+    undefined = initial;
+    @EndUserText.label: 'Approved'
+    approved = 'A';
+    @EndUserText.label: 'InProcess'
+    inprocess = 'I';
+    @EndUserText.label: 'Rejected'
+    rejected = 'R';
+}

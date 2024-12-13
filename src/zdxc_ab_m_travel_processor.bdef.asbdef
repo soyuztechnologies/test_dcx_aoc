@@ -1,0 +1,37 @@
+projection;
+strict ( 2 );
+use draft;
+define behavior for ZDXC_AB_M_TRAVEL_PROCESSOR alias Travel
+implementation in class zcl_dxc_ab_trav_proc unique
+{
+  use create ( augment, precheck );
+  use update;
+  use delete;
+  use action copyTravel;
+
+  use action activate;
+  use action prepare;
+  use action edit;
+  use action discard;
+  use action resume;
+
+  use association _Bookings { create; with draft; }
+}
+
+define behavior for ZDXC_AB_M_BOOKING_PROCESSOR alias Booking
+{
+  use update;
+  use delete;
+
+  use association _Travel;
+  use association _Supplement { create; with draft; }
+}
+
+define behavior for ZDXC_AB_M_BOOKSUPPL_PROCESSOR alias BookingSuppl
+{
+  use update;
+  use delete;
+
+  use association _Travel;
+  use association _Booking;
+}

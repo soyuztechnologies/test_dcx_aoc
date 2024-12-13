@@ -1,0 +1,136 @@
+managed implementation in class zbp_dxc_ab_m_travel unique;
+///run RAP in strict mode, guidelines will apply
+strict ( 2 );
+//add draft feature at BO level
+with draft;
+
+define behavior for ZDXC_AB_M_TRAVEL alias Travel
+//table name where rap insert,update,delete data for us
+persistent table /dmo/travel_m
+///Make the lock based on travel entity
+lock master
+//mandatory to use total etag
+total etag LastChangedAt
+///Security of application data/opr like who is allowed to create,update,delete
+authorization master ( instance )
+//specify the draft table - will created by the rap framework
+draft table zdxc_ab_dtravel
+etag master LastChangedAt
+early numbering
+{
+  create ( precheck );
+  update ( precheck );
+  delete;
+  field ( readonly ) TravelId;
+  field ( mandatory ) BeginDate, EndDate, AgencyId, CustomerId;
+
+  //its a piece of code which is intented to be only
+  //consumed within our RAP BO
+  internal action reCalcTotalPrice;
+
+  //Adding side-effect which inform RAP to reaload the total price if the booking
+  //fee has been changed on the Frontend
+  side effects {
+    field BookingFee affects field TotalPrice;
+  }
+
+
+  //Checking custom business object rules
+  validation validateHeaderData on save {create; field CustomerId, BeginDate, EndDate;}
+
+  //Define determination to execute the code when
+  //booking fee or curr code changes so we calc total price
+  determination calculateTotalPrice on modify
+            { field BookingFee, CurrencyCode; }
+
+  factory action copyTravel [1];
+
+   //adding the draft actions
+  draft determine action Prepare;
+  draft action Edit;
+  draft action Resume;
+  draft action Activate;
+  draft action Discard;
+
+  association _Bookings { create (features : instance); with draft; }
+
+  mapping for /dmo/travel_m{
+    TravelId = travel_id;
+    AgencyId = agency_id;
+    CustomerId = customer_id;
+    BeginDate = begin_date;
+    EndDate = end_date;
+    TotalPrice = total_price;
+    BookingFee = booking_fee;
+    CurrencyCode = currency_code;
+    Description = description;
+    OverallStatus = overall_status;
+    CreatedBy = created_by;
+    CreatedAt = created_at;
+    LastChangedBy = last_changed_by;
+    LastChangedAt = last_changed_at;
+  }
+}
+
+define behavior for ZDXC_AB_M_BOOKING alias Booking
+implementation in class zcl_dxc_ab_booking unique
+persistent table /dmo/booking_m
+lock dependent by _Travel
+draft table zdxc_ab_bdraft
+authorization dependent by _Travel
+etag master LastChangedAt
+early numbering
+{
+  update;
+  delete;
+
+  field ( readonly ) TravelId, BookingId;
+  field ( mandatory ) CarrierId, ConnectionId, FlightDate;
+
+  association _Travel;
+  association _Supplement { create; with draft; }
+
+  //add a determination for the change in the booking also
+  //TODO: Why the booking code is not triggering
+  determination calculateTotalPrice on modify
+            { create; field FlightPrice, CurrencyCode; }
+
+  mapping for /dmo/booking_m{
+    TravelId = travel_id;
+    BookingId = booking_id;
+    BookingDate = booking_date;
+    BookingStatus = booking_status;
+    CarrierId = carrier_id;
+    ConnectionId = connection_id;
+    FlightDate = flight_date;
+    FlightPrice = flight_price;
+    CurrencyCode = currency_code;
+    CustomerId = customer_id;
+    LastChangedAt = last_changed_at;
+  }
+}
+
+define behavior for ZDXC_AB_M_BOOKING_SUPPL alias BookingSuppl
+persistent table /dmo/booksuppl_m
+lock dependent by _Travel
+authorization dependent by _Travel
+draft table zdxc_ab_bsdraft
+//etag master <field_name>
+early numbering
+{
+  update;
+  delete;
+  field ( readonly ) TravelId, BookingId, BookingSupplementId;
+  association _Travel;
+  association _Booking;
+
+  mapping for /dmo/booksuppl_m{
+    BookingId = booking_id;
+    TravelId = travel_id;
+    BookingSupplementId = booking_supplement_id;
+    SupplementId = supplement_id;
+    Price = price;
+    CurrencyCode = currency_code;
+    LastChangedAt = last_changed_at;
+  }
+}

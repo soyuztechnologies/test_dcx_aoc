@@ -1,0 +1,6 @@
+define scalar function zget_mrp
+  with parameters
+    category: abap.char( 120 ),
+    price: abap.curr( 10,2 )
+    with reference type [ #CUKY ] 
+  returns abap.decfloat34  

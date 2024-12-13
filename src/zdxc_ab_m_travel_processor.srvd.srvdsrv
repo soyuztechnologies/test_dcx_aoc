@@ -1,0 +1,14 @@
+@EndUserText.label: 'Managed Travel for processor'
+define service ZDXC_AB_M_TRAVEL_PROCESSOR {
+  expose ZDXC_AB_M_TRAVEL_PROCESSOR    as Travel;
+  expose ZDXC_AB_M_BOOKING_PROCESSOR   as Booking;
+  expose ZDXC_AB_M_BOOKSUPPL_PROCESSOR as BookingSuppl;
+  expose /DMO/I_Agency                 as Agency;
+  expose /DMO/I_Customer               as Customer;
+  expose /DMO/I_Travel_Status_VH       as Status;
+  expose I_Currency                    as Currency;
+  expose /DMO/I_Flight                 as Flight;
+  expose /DMO/I_Connection             as Connection;
+  expose /DMO/I_Carrier                as Carrier;
+  expose /DMO/I_Supplement             as Supplement;
+}
